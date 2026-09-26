@@ -1,8 +1,8 @@
 CVAT task reference — thay mọi placeholder mới là xong.
 
-CVAT version: TODO
-Task calibration (tên, id): TODO
-Task bản cuối theo guideline v3 (tên, id) hoặc lý do không có: TODO
-File export đã nộp (đường dẫn trong repo): TODO
-Guideline version dán trong Guide của task: TODO
-Ghi chú cho người tiếp nhận: TODO
+CVAT version: 2.74.1 (http://localhost:8080)
+Task calibration (tên, id): team01-calib-v1-Hoàng Mạnh Cường (id 30); task của Hoàng Văn Long (job id 21, export theo job nên không ghi tên/id task)
+Task bản cuối theo guideline v3 (tên, id) hoặc lý do không có: Không tạo task mới cho v3. v3 viết sau blind handoff, không đổi 03_cvat_labels.json nên các task hiện có dùng lại được, chỉ cần dán Guide v3.
+File export đã nộp (đường dẫn trong repo): project/06_calibration_exports/cuong.zip, project/06_calibration_exports/long.zip (calibration); project/07_blind_handoff/peer_output/team09-blind.zip (bài blind của team09)
+Guideline version dán trong Guide của task: v2 (dán lại trước freeze, xem 03_ontology_and_cvat_setup.md). v3 chưa dán vào Guide; bản mới nhất là project/02_guideline.md (v3).
+Ghi chú cho người tiếp nhận: Dùng Shape, không Track; export CVAT for images 1.1, tắt Save images. Mọi attribute mặc định __undefined__ — bắt buộc chọn. Đọc 02_guideline.md v3 trước khi label.
