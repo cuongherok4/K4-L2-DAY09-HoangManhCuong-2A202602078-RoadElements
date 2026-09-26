@@ -41,7 +41,7 @@ IGNORE không có label riêng: thể hiện bằng **không vẽ box** (guideli
 
 - **Phiên bản CVAT** (`make cvat-status`): 2.74.1 (http://localhost:8080)
 - **Tên task calibration** (có version guideline, ví dụ `team07-calib-v1`): `team01-calib-v1-<tên người label>` (mỗi người một task)
-- **Guide của task đã dán `02_guideline.md`?** TODO (có / chưa)
+- **Guide của task đã dán `02_guideline.md`?** có (v1 cho calibration; dán lại v2 trước khi freeze)
 - **Nhóm dùng Track hay Shape, vì sao:** **Shape**. Mọi ảnh gán như ảnh tĩnh; LISA chỉ dùng 4 frame cách xa nhau, không
   cần nội suy. Export dùng **CVAT for images 1.1**, khớp với `make calib` và `make score`.
 
@@ -50,4 +50,13 @@ IGNORE không có label riêng: thể hiện bằng **không vẽ box** (guideli
 Một thành viên **chưa tham gia setup** mở task và trả lời: label gì, dùng tool nào, gán attribute nào, khi nào
 escalate. Ghi lại ai test và chỗ họ vấp:
 
-TODO — làm sau khi tạo task calibration.
+- **Người test:** Hoàng Văn Long — không tham gia tạo task / labels JSON; mở task chỉ với Guide trong CVAT.
+- **Label gì:** một box `traffic_light` cho mỗi đầu đèn xe cơ giới thấy mặt đèn, ≥ 6 px; không vẽ đèn đi bộ, phản chiếu.
+- **Tool nào:** Draw new rectangle → `traffic_light` → Shape; tag ảnh bằng Setup tag → `image_escalate`.
+- **Attribute nào:** `state`, `pictogram`, `relevance`, `needs_review` (đều phải chọn, không để `__undefined__`).
+- **Khi nào escalate:** không chắc → `unknown` + tick `needs_review`; cả ảnh không đọc được / đèn relevant mâu thuẫn /
+  không rõ làn → tag `image_escalate` với `reason`.
+- **Chỗ vấp khi thao tác CVAT:** không có (theo báo lại của Long với lead).
+- **Chỗ hiểu sai rule lộ ra khi Long label calibration** (không phải lỗi thao tác): đọc bóng đỏ cháy sáng thành
+  `yellow`; gán đầu mũi tên trái `relevant` vì giả định xe có thể rẽ. Đã sửa ở guideline v2 (xem
+  `06_calibration_report.csv`, dòng v2 trong `08_revision_log.md`).

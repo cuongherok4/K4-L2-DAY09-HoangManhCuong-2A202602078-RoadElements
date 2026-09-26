@@ -1,16 +1,16 @@
 sample_id,decision_id,expected,severity,rationale
-BDD21,d1,label=traffic_light cho đầu đèn trên cần treo phía trước (~332-342 x 282-308) với state=green pictogram=circle,major,đèn duy nhất của giao lộ gần nhất thấy rõ mặt đèn
+BDD21,d1,label=traffic_light cho đầu đèn trên cần treo phía trước (~332-342 x 280-308) với state=green pictogram=circle,major,đèn duy nhất của giao lộ gần nhất thấy rõ mặt đèn
 BDD21,d2,relevance=relevant cho đầu đèn cần treo phía trước,critical,đèn điều khiển làn ego đi thẳng; gán not_relevant là bỏ sót tín hiệu của làn mình
-BDD21,d3,geometry: box đầu đèn cần treo ôm vỏ (~332-342 x 282-308) không gồm cần treo; mỗi cạnh lệch <= 2 px,minor,guideline mục 3 - đèn rộng < 20 px
-BDD07,d1,label=traffic_light x2 cho 2 đầu đèn quay mặt ở giao lộ gần (cột trái ~229-242 x 124-157 và cần treo phải ~676-690 x 145-172) với state=green pictogram=circle,major,2 đầu đèn thấy rõ ô xanh sáng
+BDD21,d3,geometry: box đầu đèn cần treo ôm vỏ (~332-342 x 280-308) không gồm cần treo; mỗi cạnh lệch <= 2 px,minor,guideline mục 3 - đèn rộng < 20 px
+BDD07,d1,label=traffic_light x2 cho 2 đầu đèn quay mặt ở giao lộ gần (cột trái ~229-242 x 124-157 và cần treo phải ~677-688 x 147-171) với state=green pictogram=circle,major,2 đầu đèn thấy rõ ô xanh sáng
 BDD07,d2,relevance=relevant cho cả 2 đầu đèn quay mặt ở giao lộ gần,critical,đèn cột góc gần và cần treo cùng điều khiển hướng đi thẳng của ego
 BDD07,d3,IGNORE: không có box nào ở vùng nắp capo (y > 560) - phản chiếu đèn,critical,phản chiếu thành đèn ngay trước xe là false detection
 BDD07,d4,IGNORE: không có box riêng cho 2 đầu đèn quay ngang cạnh đèn trái và đèn cần treo,major,chỉ thấy cạnh vỏ - đèn cho đường cắt ngang
 BDD07,d5,geometry: box đèn cột trái ôm vỏ 3 ô (~229-242 x 124-157) không gộp đầu quay ngang bên phải nó; mỗi cạnh lệch <= 2 px,minor,guideline mục 2 + 3: mỗi vỏ một box
-BDD26,d1,label=traffic_light cho đèn xanh lớn trên cột trái (~479-497 x 62-82) với state=green relevance=relevant,major,đèn của giao lộ gần nhất
+BDD26,d1,label=traffic_light cho đèn xanh lớn trên cột trái (~479-499 x 62-83) với state=green relevance=relevant,major,đèn của giao lộ gần nhất
 BDD26,d2,IGNORE: không có box cho hộp đèn đi bộ bàn tay cam (~437x120),critical,bàn tay cam label thành đèn đỏ/vàng -> false STOP
 BDD26,d3,không có box nào ở giao lộ kế tiếp (vùng ~600-720 x 200-240) mang relevance=relevant,critical,đèn đỏ giao lộ kế gán relevant -> xe phanh gấp khi đang được đi
-BDD26,d4,geometry: box đèn xanh cột trái ôm bóng sáng (~479-497 x 62-82) không gồm quầng loá; mỗi cạnh lệch <= 10%,minor,guideline mục 3 ban đêm
+BDD26,d4,geometry: box đèn xanh cột trái ôm bóng sáng (~479-499 x 62-83) không gồm quầng loá; mỗi cạnh lệch <= 10%,minor,guideline mục 3 ban đêm
 BDD17,d1,ESCALATE: có tag image_escalate với reason=conflicting_lights hoặc low_visibility,major,mưa nhoè + đỏ/xanh không phân định được làn
 BDD17,d2,không có box nào relevance=relevant mà needs_review=false,critical,chọn đỏ hoặc xanh đều có thể là failure a hoặc b
 BDD11,d1,IGNORE: ảnh không có box traffic_light nào (chỉ có đèn đi bộ bàn tay đỏ ~1205x260),critical,đèn đi bộ đỏ label thành đèn xe -> false STOP
