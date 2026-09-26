@@ -1,6 +1,6 @@
 # Annotation guideline — Traffic light state + ego relevance
 
-**Version:** v1
+**Version:** v2
 
 <!--
 v0 = chưa có bản nháp. Đổi dòng Version ở trên thành v1 khi xong bản nháp đầu, v2 sau calibration, v3 sau blind
@@ -23,9 +23,11 @@ Ví dụ trong guideline chỉ dùng ảnh split example hoặc calibration, kh�
 2. Gán 4 attribute cho mỗi box: `state` (màu đang sáng), `pictogram` (hình đang sáng), `relevance` (đèn có điều khiển
    xe mình không), `needs_review` (tick nếu không chắc).
 3. `relevant` = đèn điều khiển hướng **đi thẳng** của làn xe mình tại **điểm dừng có đèn gần nhất phía trước**.
-4. Không chắc → chọn `unknown` và tick `needs_review`. **Không đoán.**
-5. Không vẽ: đèn đi bộ/xe đạp, đèn quay ngang/quay lưng, mọi phản chiếu, đèn của xe cộ, hình đèn trên biển.
-6. Không để sót `__undefined__`. Lưu (**Ctrl+S**) sau mỗi ảnh.
+4. **Màu đọc theo VỊ TRÍ ô đang sáng**: ô trên = `red` (kể cả khi trên ảnh trông cam/vàng), giữa = `yellow`, dưới =
+   `green`. **Xe mình luôn đi thẳng**, trừ khi thấy mũi tên rẽ sơn trên mặt đường ngay trước xe.
+5. Không chắc → chọn `unknown` và **luôn** tick `needs_review`. **Không đoán.**
+6. Không vẽ: đèn đi bộ/xe đạp, đèn quay ngang/quay lưng, mọi phản chiếu, đèn của xe cộ, hình đèn trên biển.
+7. Không để sót `__undefined__`. Lưu (**Ctrl+S**) sau mỗi ảnh.
 
 ## Thuật ngữ
 
@@ -77,7 +79,7 @@ Làm đúng thứ tự này cho **mọi** ảnh:
 
 | Bước | Làm gì | Thao tác CVAT |
 |---|---|---|
-| 1 | **Quét toàn ảnh**: phóng to khoảng 2–3 lần, đi từ trái sang phải theo dải ngang ở nửa trên ảnh (đèn thường ở đó), rồi quét nhanh nửa dưới để phát hiện phản chiếu. Đếm số vật trông giống đèn | lăn chuột + kéo ảnh |
+| 1 | **Quét toàn ảnh**: phóng to khoảng 2–3 lần, đi từ trái sang phải theo dải ngang ở nửa trên ảnh (đèn thường ở đó) — **sát cả hai mép trái/phải** (đèn cột góc hay nằm sát toà nhà, cây) — rồi quét **dải ngang quanh đường chân trời** (đèn nhỏ ở giao lộ xa, đường cắt ngang), cuối cùng quét nửa dưới để phát hiện phản chiếu. Đếm số vật trông giống đèn | lăn chuột + kéo ảnh |
 | 2 | Xác định **làn xe mình** và **điểm dừng có đèn gần nhất** (mục 4.3, Hình 3) | — |
 | 3 | Với **từng** vật tìm được, chạy **cây quyết định** (mục 7, Hình 4). Kết luận LABEL thì vẽ box | thanh trái **Draw new rectangle** → **Label** chọn `traffic_light` → **Drawing method** giữ *By 2 points* → bấm **Shape** → click góc trên trái rồi góc dưới phải của vỏ đèn. Box tiếp: **N** |
 | 4 | Kiểm từng box: kích thước (text **Dimensions**) và 4 cạnh ôm sát vỏ (mục 3, Hình 2). Chỉnh: kéo góc/cạnh | chọn box, kéo |
@@ -163,8 +165,9 @@ Sơ đồ chữ (nếu không thấy Hình 1):
   các ô bóng.
 - **Không gồm:** cột, cần treo, giá đỡ, dây treo, tấm hắt (backplate) phần rộng hơn vỏ, biển phụ, đồng hồ đếm ngược,
   quầng sáng.
-- **Đêm / ngược sáng, không thấy viền vỏ:** box ôm **lõi sáng của ô đang sáng** (không gồm quầng loá, tia sáng hình
-  sao). Thấy mờ được viền vỏ thì vẫn ôm vỏ.
+- **Đêm / ngược sáng / vỏ tối lẫn nền (cây, toà nhà tối), không thấy viền vỏ:** box ôm **lõi sáng của ô đang sáng**
+  (không gồm quầng loá, tia sáng hình sao). **Không ước lượng** kích thước vỏ khi không nhìn thấy viền. Chỉ ôm vỏ khi
+  viền vỏ nhìn thấy được trên ảnh (kể cả mờ).
 - **Bị che hoặc cắt mép ảnh:** chỉ ôm phần nhìn thấy; bị cắt thì cạnh box trùng mép ảnh.
 - **Đèn nhìn chéo** (thấy mặt đèn nhưng hơi nghiêng): ôm hình chiếu nhìn thấy của vỏ.
 - **Tolerance:** mỗi cạnh lệch ≤ 2 px nếu cạnh ngắn của đèn < 20 px; ≤ 10% chiều tương ứng nếu lớn hơn.
@@ -207,9 +210,14 @@ Mọi attribute mặc định là `__undefined__` — **bắt buộc chọn**. C
 | `off` | thấy rõ mặt đèn nhưng **không ô nào sáng** (đèn hỏng, mất điện). Xem ngoại lệ LED bên dưới |
 | `unknown` | không đọc được: ô sáng bị che, loá trắng, nhoè, quá tối, không phân biệt được đỏ/vàng |
 
-- **Đọc màu theo vị trí ô, không chỉ theo màu trên ảnh.** Camera hay làm xanh thành xanh ngọc/trắng, đỏ thành
-  cam/vàng. Đèn đứng: ô **trên = đỏ**, giữa = vàng, **dưới = xanh**. Đèn ngang: **trái = đỏ** → phải = xanh. Màu nhìn
-  thấy và vị trí mâu thuẫn nhau → `unknown` + `needs_review`.
+- **VỊ TRÍ ô đang sáng quyết định `state`, không phải màu pixel.** Camera hay làm bóng đỏ cháy sáng thành
+  **cam/vàng** (lõi vàng, viền đỏ), bóng xanh thành xanh ngọc/trắng. Đèn đứng: ô **trên = `red`**, giữa = `yellow`,
+  **dưới = `green`**. Đèn ngang: **trái = `red`** → phải = `green`. Ô trên đang sáng mà trông cam/vàng → vẫn là `red`.
+- Chỉ dùng `yellow` khi **ô giữa** sáng. Chỉ dùng `unknown` khi **không xác định được ô nào đang sáng** (không thấy vỏ,
+  bị che, loá mất vị trí) **và** màu không phân biệt được.
+- Không thấy vỏ (chỉ thấy lõi sáng): đọc theo màu; lõi vàng có viền đỏ/cam thường là **đỏ bị cháy sáng** — nếu các đầu
+  đèn khác cùng hướng thấy rõ là đỏ thì gán `red`, không chắc thì `unknown` + `needs_review`.
+- Đầu đèn mũi tên cũng đọc theo vị trí ô như trên.
 - **Nhiều ô cùng sáng trong một đầu đèn** (ví dụ tròn đỏ + mũi tên trái xanh): `state` và `pictogram` lấy theo tín
   hiệu **áp cho hướng đi thẳng của làn mình** — ví dụ trên → `red` + `circle`. Không xác định được → chọn màu **hạn
   chế hơn** (đỏ > vàng > xanh) và tick `needs_review`.
@@ -221,17 +229,19 @@ Mọi attribute mặc định là `__undefined__` — **bắt buộc chọn**. C
 
 | Giá trị | Khi nào |
 |---|---|
-| `circle` | ô tròn đầy |
+| `circle` | ô tròn đầy. Lõi sáng loá nhưng vẫn **tròn đều** và không thấy hình mũi tên → vẫn `circle` |
 | `arrow_left` / `arrow_right` / `arrow_straight` | mũi tên trái / phải / thẳng |
 | `other` | hình khác: mũi tên quay đầu, mũi tên chéo, thanh ngang/dọc |
-| `unknown` | `state = off` (không ô nào sáng), hoặc không nhìn rõ hình (đèn nhỏ, loá) |
+| `unknown` | `state = off` (không ô nào sáng), hoặc lõi sáng **méo/loá mất hình**, hoặc đèn quá nhỏ để phân biệt tròn hay mũi tên |
 
 Phóng to vào **ô đang sáng** trước khi chọn: mũi tên nhỏ ở xa rất dễ trông như chấm tròn. Không chắc → `unknown`.
 
 ### 4.3 `relevance` — đèn có điều khiển xe mình không
 
-**Quy ước hướng đi của xe mình:** xe **đi thẳng trong làn đang chạy**. Ngoại lệ: thấy rõ xe mình đang ở **làn
-chỉ-rẽ** (mũi tên rẽ sơn trên mặt đường ngay trước xe, không có mũi tên thẳng) → hướng đi là hướng rẽ đó.
+**Quy ước hướng đi của xe mình:** xe **đi thẳng trong làn đang chạy**. Ngoại lệ **duy nhất**: thấy rõ xe mình đang ở
+**làn chỉ-rẽ** (mũi tên rẽ sơn trên mặt đường ngay trước xe, không có mũi tên thẳng) → hướng đi là hướng rẽ đó.
+**Không được tự giả định xe sẽ rẽ** (vì xe đang dừng, vì có vạch cong, vì đèn mũi tên nổi bật…). Không thấy mũi tên
+sơn trên đường → xe đi thẳng → đầu đèn chỉ có mũi tên rẽ là `not_relevant`.
 
 **Điểm dừng có đèn gần nhất** = vạch dừng/giao lộ/vạch sang đường/lối vào cao tốc có đèn **đầu tiên** mà xe sẽ đi
 qua, hoặc giao lộ xe **đang ở trong** (đã qua vạch dừng nhưng chưa ra khỏi giao lộ).
@@ -372,6 +382,7 @@ Track, không suy state từ frame trước/sau.
 | Một đầu đèn trông tắt, hai đầu cùng hướng đang xanh (ban ngày) | đầu trông tắt: `state = unknown` + `needs_review` (LED nhấp nháy), không gán `off` |
 | Tất cả đầu đèn của giao lộ đều tắt, trời sáng | các đầu đèn: `off` / `unknown` (pictogram) / `relevant` |
 | Đèn nháy vàng một ô treo giữa giao lộ | `yellow`/`circle`/`relevant` |
+| Ô **trên** đang sáng nhưng trên ảnh trông cam/vàng | `red` — vị trí ô quyết định |
 | Ramp meter đỏ ở lối vào cao tốc, xe đang ở làn ramp | `red`/`circle`/`relevant` |
 | Đèn đỏ ở vạch sang đường giữa đoạn (không có giao lộ) trước xe | `red`/`circle`/`relevant` — đây là điểm dừng gần nhất |
 | Hộp đèn đi bộ bàn tay đỏ ở góc đường | không vẽ |
@@ -430,7 +441,7 @@ Chỉ dùng ảnh split example/calibration. Mở ảnh theo tên file trong tas
 | sample_id | Thấy gì | Expected output | Rule |
 |---|---|---|---|
 | LISA16 | frame đầu tiên đầu đi thẳng chuyển xanh | như LISA24; chỉ nhìn chính frame này | mục 8 |
-| LISA09 | đầu cột phải lẫn vào tán cây tối, chỉ rõ lõi đỏ | box ôm lõi đỏ; `red` / `circle` / `relevant` | mục 3 |
+| LISA09 | pha đỏ: bóng đỏ cháy sáng trông **cam/vàng**; đầu cột phải lẫn vào tán cây tối; 2 đèn đỏ nhỏ ở giao lộ xa (gần giữa ảnh và bên phải) | mọi đầu đèn đang sáng ô **trên** → `red` (không phải `yellow`); đầu đi thẳng + cột phải: `circle` / `relevant`; đầu cột phải box ôm lõi đỏ, không ước lượng vỏ; mũi tên trái: `arrow_left` / `not_relevant` (không thấy mũi tên sơn → xe đi thẳng); 2 đèn xa: vẽ, `red`, relevance `unknown` + `needs_review` | mục 3, 4.1, 4.3 |
 | BDD22 | dãy đèn xanh rất xa trên giá long môn | đọc Dimensions: cạnh ngắn ≥ 6 px thì vẽ, < 6 px thì không | mục 5 |
 | BDD15 | nắng mờ, đầu đèn xa ở cột trái không rõ ô nào sáng | box, `state = unknown`, `pictogram = unknown`, `needs_review` | mục 6 |
 | BDD04, BDD24 | phố không có đèn giao thông | ảnh không có box nào | mục 5 |
@@ -446,7 +457,8 @@ Chỉ dùng ảnh split example/calibration. Mở ảnh theo tên file trong tas
 | Gán `relevant` cho đèn ở giao lộ kế tiếp | xe dừng giữa giao lộ (critical) | chỉ điểm dừng **gần nhất**; không chắc → `unknown` |
 | Chỉ gán `relevant` cho một đèn "gần tâm ảnh nhất" | thiếu tín hiệu | mọi đầu đèn lặp lại của cùng hướng ở điểm dừng gần nhất đều `relevant` |
 | Vẽ đèn đi bộ, phản chiếu capo/mặt đường, đèn trên nóc xe | false STOP (critical) | cây quyết định bước 1–2 |
-| Đọc màu chỉ theo màu pixel (xanh ngọc tưởng trắng, cam tưởng vàng) | sai state | đọc thêm vị trí ô: trên đỏ, dưới xanh |
+| Đọc màu theo màu pixel: bóng đỏ cháy sáng trông vàng → gán `yellow` | đèn đỏ thành vàng (critical) | **vị trí ô quyết định**: ô trên sáng = `red` |
+| Tự giả định xe sẽ rẽ rồi gán mũi tên rẽ là `relevant` | xe đi khi phải dừng / ngược lại (critical) | không thấy mũi tên sơn trên đường = xe đi thẳng |
 | Chọn `circle` theo thói quen cho đèn mũi tên | mất bằng chứng relevance | phóng to ô đang sáng; không rõ → `unknown` |
 | Gán `off` cho đầu đèn LED trông tắt trong khi đèn cùng hướng đang sáng | sai state | `unknown` + `needs_review` |
 | Gộp hai đầu đèn sát nhau vào một box | sai số lượng | mỗi vỏ một box |
@@ -466,3 +478,5 @@ Chỉ dùng ảnh split example/calibration. Mở ảnh theo tên file trong tas
 | Đã tick `needs_review` rồi có cần tag ảnh không? | chỉ tag khi rơi vào một trong 4 lý do ở mục 7; `needs_review` đơn lẻ là đủ cho từng đèn |
 | Hai đầu đèn cùng cột, một cho xe một cho người đi bộ? | vẽ đầu cho xe, bỏ đầu đi bộ |
 | Không biết ảnh là ban đêm hay chạng vạng? | không quan trọng — áp dụng rule theo việc có thấy viền vỏ hay không |
+| Xe đang dừng trước giao lộ, không biết sẽ đi thẳng hay rẽ? | coi là **đi thẳng**, trừ khi thấy mũi tên rẽ sơn trên đường ngay trước xe |
+| Bóng đèn ở ô trên trông màu vàng? | `red` — xem vị trí ô, không xem màu |
