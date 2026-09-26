@@ -1,1 +1,50 @@
-[]
+[
+  {
+    "name": "traffic_light",
+    "color": "#00d0ff",
+    "type": "rectangle",
+    "attributes": [
+      {
+        "name": "state",
+        "mutable": true,
+        "input_type": "select",
+        "default_value": "__undefined__",
+        "values": ["__undefined__", "red", "yellow", "green", "off", "unknown"]
+      },
+      {
+        "name": "relevance",
+        "mutable": true,
+        "input_type": "select",
+        "default_value": "__undefined__",
+        "values": ["__undefined__", "relevant", "not_relevant", "unknown"]
+      },
+      {
+        "name": "pictogram",
+        "mutable": false,
+        "input_type": "select",
+        "default_value": "__undefined__",
+        "values": ["__undefined__", "circle", "arrow_left", "arrow_right", "arrow_straight", "unknown"]
+      },
+      {
+        "name": "occluded",
+        "mutable": false,
+        "input_type": "checkbox",
+        "default_value": "false",
+        "values": ["false"]
+      },
+      {
+        "name": "needs_review",
+        "mutable": false,
+        "input_type": "checkbox",
+        "default_value": "false",
+        "values": ["false"]
+      }
+    ]
+  },
+  {
+    "name": "image_escalate",
+    "color": "#8E24AA",
+    "type": "tag",
+    "attributes": []
+  }
+]
