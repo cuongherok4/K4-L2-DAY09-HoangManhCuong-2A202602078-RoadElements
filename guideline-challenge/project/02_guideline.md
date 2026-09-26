@@ -80,21 +80,32 @@ giá trị nào được tự điền thay annotator.
 
 ### 4.2 `relevance` — đèn có điều khiển ego lane không
 
-Quy ước hướng đi của ego (ảnh đơn không cho biết ý định rẽ): **ego đi theo làn đang đứng**. Nếu ego không nằm trong
-làn rẽ riêng (không có mũi tên rẽ vẽ trên mặt đường của làn ego, không nằm trong làn rẽ tách riêng), coi như **ego
-đi thẳng**.
+**Bước 1 — xác định hướng đi của ego.** Ảnh đơn không cho biết ý định rẽ, nên ego được coi là **đi theo làn đang
+đứng**. Làn của ego chỉ được xác định từ **bằng chứng nhìn thấy trong ảnh**, không mặc định:
 
-`relevant` khi **đủ cả ba** điều kiện:
+| Bằng chứng | Kết luận |
+|---|---|
+| Mũi tên thẳng trên mặt đường làn ego; hoặc có làn cùng chiều ở cả hai bên ego | Ego **đi thẳng** |
+| Mũi tên rẽ trên mặt đường làn ego; hoặc ego đứng trong làn rẽ tách riêng | Ego **rẽ** theo hướng mũi tên |
+| Không thấy các bằng chứng trên, hoặc bằng chứng mâu thuẫn (ví dụ: đèn mũi tên rẽ treo gần ngay trên ego, vạch dẫn hướng rẽ bắt đầu sát làn ego) | Hướng đi của ego **chưa xác định** |
+
+**Bước 2 — xét từng đầu đèn.** `relevant` khi **đủ cả ba** điều kiện:
 
 1. Đèn thuộc **giao lộ gần nhất phía trước** ego (giao lộ có vạch dừng mà ego sẽ gặp đầu tiên).
 2. Mặt đèn **quay về phía camera**.
-3. Đèn điều khiển hướng đi của ego: đèn tròn (`circle`) hoặc mũi tên cùng hướng với ego (ego đi thẳng →
-   `arrow_straight`; ego ở làn rẽ trái → `arrow_left`...). Giao lộ có nhiều đầu đèn tròn cùng điều khiển hướng
-   đi thẳng → **tất cả** đều `relevant`.
+3. Đèn điều khiển hướng đi của ego:
+   - Giao lộ **không có** đầu đèn mũi tên nào → đèn tròn áp dụng cho mọi hướng → đạt, kể cả khi hướng đi của ego
+     chưa xác định.
+   - Giao lộ **có** đầu đèn mũi tên → cần biết hướng đi của ego (bước 1): ego đi thẳng → đèn tròn hoặc
+     `arrow_straight`; ego rẽ trái → `arrow_left`; ego rẽ phải → `arrow_right`.
+   - Nhiều đầu đèn cùng điều khiển hướng đi của ego → **tất cả** đều `relevant`.
 
 `not_relevant` khi chắc chắn một trong các trường hợp: đèn quay lưng / quay ngang; đèn thuộc giao lộ xa hơn giao lộ
-gần nhất; đèn mũi tên cho hướng ego không đi (ví dụ ego đi thẳng, đèn chỉ có mũi tên rẽ trái treo trên làn rẽ trái);
-đèn cho đường cắt ngang.
+gần nhất; đèn cho đường cắt ngang; đèn mũi tên cho hướng mà ego **chắc chắn** không đi (đã xác định ở bước 1).
+
+Giao lộ có đèn mũi tên nhưng hướng đi của ego **chưa xác định** → mọi đầu đèn có relevance phụ thuộc hướng đi (đèn
+tròn và đèn mũi tên quay về camera ở giao lộ gần nhất) đều là `unknown` + `needs_review`. **Không** tự chọn "ego đi
+thẳng" để gán `relevant` cho đèn tròn: nếu ego thật ra đang ở làn rẽ có mũi tên đỏ, đó là lỗi critical.
 
 `unknown` khi không đủ bằng chứng để chọn một trong hai giá trị trên — luôn kèm `needs_review` (mục 7).
 
@@ -171,18 +182,22 @@ từ ảnh trước / sau, không suy đèn nhấp nháy hay chuyển pha. Mọi
 
 ## 9. Examples
 
-Ảnh LISA là cảnh giao lộ lúc chạng vạng, camera dừng ở vạch trước giao lộ; xe có đèn pha ở bên trái là xe ngược
-chiều → ego ở làn đi thẳng. Trên cần treo phía trước có 3 đầu đèn gần (trái → phải) và một nhóm đèn nhỏ ở xa phía sau
-giao lộ.
+Ảnh LISA là cảnh giao lộ lúc chạng vạng, camera dừng ở vạch dừng. Trên cần treo phía trước có 3 đầu đèn gần
+(trái → phải: một đầu đèn mũi tên rẽ trái, hai đầu đèn tròn) và vài đầu đèn nhỏ ở xa phía sau giao lộ. **Hướng đi của
+ego chưa xác định** (mục 4.2, bước 1): không thấy mũi tên trên mặt đường làn ego; đầu đèn mũi tên rẽ trái treo gần
+giữa khung hình và vạch dẫn hướng rẽ trái bắt đầu sát phía trước bên trái ego → ego có thể đang ở làn rẽ trái. Vì
+giao lộ có đèn mũi tên, relevance của các đèn gần đều là `unknown` + `needs_review`, và ảnh có tag `image_escalate`
+(mục 7, rule 4).
 
 | sample_id | Thấy gì | Expected output | Rule áp dụng |
 |---|---|---|---|
-| LISA01 | Đầu đèn gần bên trái, bóng trên cùng sáng hình mũi tên rẽ trái, màu cam-đỏ; biển cấm quay đầu bên cạnh | Box ôm vỏ đèn (không gồm biển, cần treo) · `red` · `not_relevant` · `arrow_left` | 3, 4.1 (vị trí bóng trên cùng → red), 4.2 (ego đi thẳng, mũi tên rẽ trái không áp dụng) |
-| LISA01 | Đầu đèn gần ở giữa, bóng tròn trên cùng sáng, màu cam | Box ôm vỏ · `red` · `relevant` · `circle` | 4.1 (màu lệch → theo vị trí), 4.2 (đèn tròn, giao lộ gần nhất, quay về camera) |
-| LISA01 | Đầu đèn gần bên phải, vỏ đèn gần như lẫn vào nền cây tối, chỉ rõ một bóng tròn đỏ | Box ôm phần vỏ nhìn thấy (hoặc lõi sáng nếu không thấy vỏ) · `red` · `relevant` · `circle` | 3 (không thấy vỏ → ôm lõi sáng), 4.2 (nhiều đèn tròn cùng điều khiển → tất cả relevant) |
-| LISA01 | Các đèn nhỏ ở xa phía sau giao lộ, bóng đỏ, cao khoảng 10–20 px | Mỗi đầu đèn một box · `red` · `not_relevant` · `circle` (hoặc `unknown` nếu không phân biệt được hình) | 1 (≥ 8 px), 4.2 (giao lộ xa hơn giao lộ gần nhất), 4.3 |
-| LISA30 | Cùng cảnh; đèn mũi tên rẽ trái vẫn đỏ, hai đầu đèn tròn gần chuyển xanh (màu xanh ngọc, bóng dưới cùng) | Đèn trái: `red` · `not_relevant` · `arrow_left`. Đèn giữa và phải: `green` · `relevant` · `circle` | 4.1 (bóng dưới cùng → green), 8 (label độc lập, không suy từ LISA01) |
-| LISA01 | Đèn phanh / đèn pha của xe trên đường; biển cấm quay đầu | Không có box | 5 (IGNORE) |
+| LISA01 | Đầu đèn gần bên trái, bóng trên cùng sáng hình mũi tên rẽ trái, màu cam-đỏ; biển báo quay đầu (U-turn) gắn bên cạnh | Box ôm vỏ đèn (không gồm biển, cần treo) · `red` · `unknown` · `arrow_left` · `needs_review` | 3, 4.1 (bóng trên cùng → red), 4.2 (hướng đi của ego chưa xác định), 7 (rule 1, 2) |
+| LISA01 | Đầu đèn gần ở giữa, bóng tròn trên cùng sáng, màu cam | Box ôm vỏ · `red` · `unknown` · `circle` · `needs_review` | 4.1 (màu lệch → theo vị trí), 4.2 (giao lộ có đèn mũi tên, hướng đi của ego chưa xác định) |
+| LISA01 | Đầu đèn gần bên phải, vỏ đèn gần như lẫn vào nền cây tối, chỉ rõ một bóng tròn đỏ | Box ôm phần vỏ nhìn thấy; không thấy vỏ thì ôm lõi sáng · `red` · `unknown` · `circle` · `needs_review` | 3, 4.2, 7 (rule 2) |
+| LISA01 | Vài đầu đèn nhỏ ở xa phía sau giao lộ, bóng tròn đỏ, cao khoảng 10–30 px; không xác định được thuộc phía xa của giao lộ này hay giao lộ kế tiếp | Mỗi đầu đèn một box · `red` · `unknown` · `circle` · `needs_review` | 1 (≥ 8 px), 2 (mỗi vỏ một box), 7 (rule 2: đèn đỏ, phân vân → không chọn `not_relevant`) |
+| LISA01 | Cả ảnh | Tag `image_escalate` | 7 (rule 4: không đèn gần nào xác định được relevance, không xác định được làn ego) |
+| LISA30 | Cùng cảnh; đèn mũi tên rẽ trái vẫn đỏ, hai đầu đèn tròn gần chuyển xanh (màu xanh ngọc, bóng dưới cùng) | Đèn trái: `red` · `unknown` · `arrow_left` · `needs_review`. Đèn giữa và phải: `green` · `unknown` · `circle` · `needs_review`. Tag `image_escalate` | 4.1 (bóng dưới cùng → green), 4.2 (**không** gán `relevant` cho đèn xanh khi ego có thể ở làn rẽ có mũi tên đỏ), 8 (label độc lập) |
+| LISA01 | Đèn pha / đèn phanh của xe trên đường; biển báo quay đầu | Không có box | 5 (IGNORE) |
 
 ## 10. Common mistakes
 
@@ -193,7 +208,8 @@ giao lộ.
 | Chỉ vẽ một box cho hai đầu đèn cạnh nhau | Sai số đèn, mất đèn relevant | Mỗi vỏ đèn một box (mục 2) |
 | Box gồm cả backplate, cần treo hoặc quầng loá | Sai geometry | Chỉ ôm vỏ đèn nhìn thấy / lõi sáng (mục 3) |
 | Đoán màu đèn đỏ ban đêm là `yellow` vì trông cam | Sai `state` | Xác định theo vị trí bóng (mục 4.1) |
-| Gán `relevant` cho mũi tên rẽ khi ego đi thẳng | Planner dùng sai đèn | Xét pictogram với hướng đi của ego (mục 4.2) |
+| Mặc định "ego đi thẳng" khi không thấy bằng chứng về làn ego | Gán `relevant` cho đèn tròn xanh trong khi ego ở làn rẽ có mũi tên đỏ → **critical** | Xác định làn ego từ bằng chứng (mục 4.2, bước 1); không đủ → `unknown` + `needs_review` |
+| Gán `relevant` cho mũi tên rẽ khi ego chắc chắn đi thẳng | Planner dùng sai đèn | Xét pictogram với hướng đi của ego (mục 4.2) |
 | Gán `relevant` cho đèn ở giao lộ xa hơn | Planner phản ứng sớm với đèn không áp dụng | Chỉ giao lộ gần nhất (mục 4.2) |
 | Bỏ qua đèn nhỏ ở xa hoặc đèn quay lưng | Thiếu instance | Vẽ mọi đèn ≥ 8 px (mục 1, 5) |
 | Vẽ đèn đi bộ hoặc phản chiếu trên kính | Thừa instance | Xem danh sách IGNORE (mục 5) |
