@@ -8,4 +8,4 @@ Cột Version ghi dạng `v1`, `v2`, `v3` — `make status` tìm dòng bảng c�
 
 | Version | Đổi gì | Vì sao | Bằng chứng |
 |---|---|---|---|
-| v1 | Bản nháp đầu: đủ 10 mục; rule `relevance` (giao lộ gần nhất, quay về camera, hướng đi của ego xác định từ bằng chứng làn), xác định `state` theo vị trí bóng, bảng LABEL / IGNORE / UNKNOWN / ESCALATE, ví dụ trên LISA01 / LISA30 | Chuẩn bị task calibration (gate G2) | `01_problem_statement.md`, `03_cvat_labels.json` |
+| v1 | Viết lại đầy đủ 10 mục; chốt một housing/một instance, visible-only geometry, ngưỡng 8 px, `off` so với `unknown`, bằng chứng gán `relevance`, `pictogram` cho direction, LABEL / IGNORE / UNKNOWN / ESCALATE và temporal rule; bổ sung sample pack cùng edge/gold cases LISA + BDD100K | Chuyển downstream contract và các edge case thành hướng dẫn tự đủ để annotator dùng độc lập trong calibration | `01_problem_statement.md`; `03_cvat_labels.json`; `sample_pack.csv`; `04_edge_cases/edge_case_cards.md`; các sample example/calibration LISA/BDD100K |
