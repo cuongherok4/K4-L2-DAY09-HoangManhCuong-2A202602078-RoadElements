@@ -1,1 +1,11 @@
 sample_id,decision_id,expected,severity,rationale
+BDD07,d1,"label=traffic_light x2",major,"Hai đầu đèn xe nhìn thấy rõ trong cảnh; phải tạo instance riêng thay vì gộp cả cụm đèn."
+BDD07,d2,"relevance=not_relevant (đèn trái)",critical,"README của project dùng BDD07 làm ví dụ: đèn trái điều khiển chuyển động khác, không áp dụng cho ego lane."
+BDD07,d3,"geometry: box ôm vỏ đèn nhìn thấy",minor,"Geometry contract: không gồm cột, cần treo hoặc nền đen; chỉ ôm phần vỏ đèn nhìn thấy."
+BDD07,d4,"state=yellow + relevance=relevant (đầu đèn áp dụng ego)",critical,"Sai state đỏ/vàng của đèn điều khiển ego có thể dẫn tới planner cho xe vượt tín hiệu; cần giữ yellow nếu tín hiệu đang vàng."
+BDD12,d1,"ESCALATE (không suy đoán relevance)",major,"Project quy định BDD12 là case không suy ra được làn mà đèn điều khiển; cần escalation thay vì đoán."
+BDD18,d1,"label vehicle traffic light khi đạt scope; không label pedestrian/điểm sáng không phải vehicle signal",major,"Ban đêm có nhiều nguồn sáng; phải phân biệt vehicle signal với pedestrian signal, street light và light source khác."
+BDD18,d2,"state=green cho vehicle signal xanh đủ rõ ở vùng trung tâm; nếu màu không đủ bằng chứng thì state=unknown",major,"State phải dựa vào tín hiệu của head thật, không suy từ màu của nguồn sáng lân cận."
+BDD21,d1,"label=traffic_light cho vehicle signal xanh nhìn thấy ở phía trước; state=green",minor,"Đây là normal/reference decision trong cảnh có background foliage; không được nhầm foliage với object."
+BDD25,d1,"state=green cho vehicle traffic-light head nhìn thấy rõ",major,"Màu của head thật là green; reflection trên mặt đường không phải một signal instance."
+BDD25,d2,"geometry: box chỉ quanh head/housing, không bao gồm reflection trên mặt đường",minor,"Geometry contract loại reflection; box phải ôm phần vỏ đèn nhìn thấy."
