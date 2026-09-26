@@ -1,16 +1,18 @@
 sample_id,split,tags,reason
-LISA01,example,normal;ambiguity;small_far,"Guideline section 9 example: 3 nearby heads all red (1 left-turn arrow, 2 circular) + a few small far lights; ego lane cannot be determined → relevance unknown + needs_review, tag image_escalate; tests rule 4.1 (off-hue color → follow lit bulb position), 4.2, 7"
-LISA30,example,conflict;critical;ambiguity,"Guideline section 9 example: left-turn arrow still red while the 2 circular lights are already green; tests rule 4.2: must not assume ego goes straight to mark the green lights relevant"
-BDD07,example,normal;edge,"Clear relevant example: intersection with no arrow lights, 2 green heads facing the camera → relevant; a head turned sideways (yellow housing) → state unknown, not_relevant; small lights at the far intersection → not_relevant"
-BDD12,example,negative,"Only a pedestrian signal (red hand) on the right pole, no vehicle lights; tests IGNORE rule in section 5 → no box"
-LISA08,calibration,normal;ambiguity,"Red phase (middle frame of sequence 01–15): measures agreement on state by bulb position and on relevance handling when the ego lane is unclear"
-LISA16,calibration,temporal;conflict,"First frame after the 2 circular lights turn green while the arrow is still red; tests rule 8 (label each frame independently, do not infer from previous frames) and rule 4.2"
-BDD18,calibration,low_visibility;small_far;negative,"Night: pedestrian signal lit on the right pole (IGNORE), 2 very small green lights far away mid-road; tests the 8 px threshold, tight box around the lit core, vehicle vs pedestrian signal distinction"
-BDD11,calibration,negative;edge,"Only a red-hand pedestrian signal in the right corner, no visible vehicle lights; checks that annotators do not box the pedestrian signal by mistake"
-BDD04,calibration,negative,"Daytime residential street with no traffic lights (only signs and utility poles); checks that no extra boxes are drawn"
-BDD15,calibration,small_far;ambiguity,"Daytime boulevard, very small dark head far on the left, state hard to see; tests the 8 px threshold and off vs unknown distinction"
-BDD02,blind,normal;small_far,"Daytime boulevard with many green heads at the near and far intersections, some heads turned sideways; no arrow lights → tests the basic relevant rule and the nearest-intersection rule"
-BDD17,blind,critical;low_visibility;conflict,"Rain, blurry windshield: orange/red head on the left pole at the near intersection while the far mid-road light is green; one-way street so the left light may control ego → must not be labeled not_relevant / green (rule 7.2)"
-BDD21,blind,edge;occlusion;small_far,"Daytime boulevard: green lights on the mast arm and median pole, sideways head on the left, red object occluded by trees on the right; tests occluded, sideways heads, IGNORE non-light objects"
-BDD26,blind,edge;low_visibility;negative,"Night: near green head on the left pole (large glare), red-hand pedestrian signal right below it; tests tight box around the lit core and not mistaking the red pedestrian signal for a vehicle light"
-BDD25,blind,ambiguity;low_visibility;negative,"Dusk, wet road: many green lights at the near and far intersections, green/red reflections on the road surface, hand pedestrian signals; tests IGNORE reflections and the nearest-intersection rule"
+LISA03,example,normal,đèn đi thẳng đỏ + mũi tên rẽ trái đỏ: ví dụ chuẩn state=red relevance=relevant vs not_relevant cho mũi tên
+LISA24,example,normal;conflict,đèn đi thẳng xanh cạnh mũi tên rẽ trái đỏ: minh hoạ rule ego đi thẳng -> mũi tên là not_relevant
+BDD12,example,negative;edge,chỉ có đèn đi bộ (bàn tay đỏ) ở góc phải: minh hoạ rule không vẽ đèn đi bộ
+BDD15,example,small_far;low_visibility;edge,đèn xa trong nắng mờ khó đọc state: minh hoạ unknown + needs_review và ngưỡng 6 px
+BDD04,example,negative;normal,đường dân cư không có đèn (chỉ biển vàng): ảnh không có box nào là output đúng
+BDD02,calibration,edge;small_far;conflict,nhiều đầu đèn xanh ở cột trái/cần treo/cột phải + đèn xa giao lộ sau: thử rule nhiều đèn relevant và giao lộ gần nhất
+BDD18,calibration,low_visibility;edge,đêm: không thấy vỏ đèn chỉ thấy bóng xanh xa + đèn đi bộ sáng gần: thử geometry ban đêm và rule đèn đi bộ
+BDD22,calibration,small_far;edge,chạng vạng: dãy đèn xanh trên giá long môn rất xa khoảng 5-7 px: thử ngưỡng 6 px
+BDD25,calibration,low_visibility;edge;small_far,chạng vạng mưa: nhiều đèn xanh + phản chiếu trên mặt đường ướt: thử rule phản chiếu và relevance nhiều đèn
+BDD24,calibration,negative,đường tuyết không có đèn: kiểm annotator không vẽ nhầm đèn hậu/biển điện tử
+LISA09,calibration,normal;occlusion,đỏ: đầu đèn phải lẫn vào tán cây tối + đèn xa nhỏ ở giao lộ: thử geometry khi vỏ không rõ
+LISA16,calibration,edge;conflict,frame đầu tiên đèn đi thẳng chuyển xanh trong khi mũi tên vẫn đỏ: thử state + relevance cho mũi tên
+BDD21,blind,normal;small_far,ban ngày: đèn xanh trên cần treo điều khiển làn ego + đèn xa và đầu đèn khuất ở mép ảnh
+BDD07,blind,edge;critical;small_far,giao lộ 2 đầu đèn xanh quay mặt + 2 đầu quay ngang + phản chiếu đèn trên capo: thử inclusion và false positive
+BDD26,blind,critical;low_visibility;edge,đêm loá: đèn xanh gần + đèn đi bộ đỏ + đèn đỏ ở giao lộ kế tiếp: thử rule giao lộ gần nhất và đèn đi bộ
+BDD17,blind,ambiguity;conflict;low_visibility,mưa nhoè kính: đèn đỏ cột trái và đèn xanh phía trước không phân định được làn: thử escalation
+BDD11,blind,negative;edge,chỉ có đèn đi bộ bàn tay đỏ trên cột phải: output đúng là không có box traffic_light

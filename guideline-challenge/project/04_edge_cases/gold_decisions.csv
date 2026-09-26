@@ -1,18 +1,16 @@
 sample_id,decision_id,expected,severity,rationale
-BDD07,d1,"label=traffic_light x2",major,"Hai đầu đèn xe phía trái và phải đều có housing nhìn thấy rõ."
-BDD07,d2,"relevance=not_relevant (đèn trái)",critical,"Đèn trái điều khiển movement/làn khác; vị trí phía trước không đủ để gán relevant."
-BDD07,d3,"state=green; pictogram=circle (cả hai đèn)",major,"Hai bóng xanh tròn đọc được trực tiếp từ ảnh."
-BDD07,d4,"geometry: mỗi box ôm riêng phần housing nhìn thấy; không gồm cần treo",minor,"Mỗi đầu đèn là một instance vật lý độc lập."
-BDD12,d1,"ESCALATE; image_escalate=true",major,"Xe phía trước che vùng giao lộ và không đủ bằng chứng để xác định chắc tín hiệu điều khiển làn ego."
-BDD12,d2,"IGNORE pedestrian signal",major,"Tín hiệu người đi bộ không thuộc vehicle traffic-light scope."
-BDD18,d1,"label=traffic_light x2 (hai đèn xanh chính giữa ảnh)",major,"Hai housing xe hướng về camera nhìn thấy dù ảnh ban đêm và bị bloom."
-BDD18,d2,"state=green; relevance=relevant; pictogram=circle (hai đèn chính)",major,"Hai đèn cùng điều khiển hướng đi thẳng hiện tại và bóng xanh tròn đọc được."
-BDD18,d3,"IGNORE đèn hậu, đèn pha, biển sáng và pedestrian signal",major,"Các nguồn sáng đỏ/trắng lân cận không phải vehicle traffic-light housing."
-BDD18,d4,"geometry: box theo housing, không nới theo quầng sáng xanh",minor,"Bloom ban đêm không phải một phần hình học của object."
-BDD20,d1,"label candidate vehicle signal đủ cao >=8 px; state=unknown; relevance=unknown; pictogram=unknown; needs_review=true",major,"Tín hiệu xa bị giảm độ phân giải; có bằng chứng housing nhưng không đủ để chốt thuộc tính."
-BDD20,d2,"ESCALATE; image_escalate=true",major,"Không thể suy chắc candidate nào điều khiển ego lane từ một ảnh tĩnh bị che và mờ."
-BDD20,d3,"IGNORE đèn xe đỗ, phản chiếu và đốm sáng không có housing",minor,"Không dùng unknown để biến mọi điểm màu thành traffic light."
-BDD26,d1,"label đèn xe gần bên trái; state=green; relevance=relevant; pictogram=circle",major,"Housing gần và bóng xanh tròn điều khiển hướng ego nhìn thấy rõ."
-BDD26,d2,"IGNORE pedestrian signal đỏ cạnh đèn xanh gần",major,"Biểu tượng đỏ dành cho người đi bộ bị loại khỏi scope dù nằm sát vehicle signal."
-BDD26,d3,"label các housing đèn xe đỏ phía xa nếu cao >=8 px; state=red; relevance=unknown; needs_review=true",critical,"Bỏ sót đèn đỏ đủ ngưỡng có thể làm planner không nhận biết tín hiệu dừng; relevance không được đoán."
-BDD26,d4,"Không gộp đèn xanh gần và các đèn đỏ xa thành một instance/state",major,"Chúng là các housing vật lý ở giao lộ/movement khác nhau."
+BDD21,d1,label=traffic_light cho đầu đèn trên cần treo phía trước (~332-342 x 282-308) với state=green pictogram=circle,major,đèn duy nhất của giao lộ gần nhất thấy rõ mặt đèn
+BDD21,d2,relevance=relevant cho đầu đèn cần treo phía trước,critical,đèn điều khiển làn ego đi thẳng; gán not_relevant là bỏ sót tín hiệu của làn mình
+BDD21,d3,geometry: box đầu đèn cần treo ôm vỏ (~332-342 x 282-308) không gồm cần treo; mỗi cạnh lệch <= 2 px,minor,guideline mục 3 - đèn rộng < 20 px
+BDD07,d1,label=traffic_light x2 cho 2 đầu đèn quay mặt ở giao lộ gần (cột trái ~229-242 x 124-157 và cần treo phải ~676-690 x 145-172) với state=green pictogram=circle,major,2 đầu đèn thấy rõ ô xanh sáng
+BDD07,d2,relevance=relevant cho cả 2 đầu đèn quay mặt ở giao lộ gần,critical,đèn cột góc gần và cần treo cùng điều khiển hướng đi thẳng của ego
+BDD07,d3,IGNORE: không có box nào ở vùng nắp capo (y > 560) - phản chiếu đèn,critical,phản chiếu thành đèn ngay trước xe là false detection
+BDD07,d4,IGNORE: không có box riêng cho 2 đầu đèn quay ngang cạnh đèn trái và đèn cần treo,major,chỉ thấy cạnh vỏ - đèn cho đường cắt ngang
+BDD07,d5,geometry: box đèn cột trái ôm vỏ 3 ô (~229-242 x 124-157) không gộp đầu quay ngang bên phải nó; mỗi cạnh lệch <= 2 px,minor,guideline mục 2 + 3: mỗi vỏ một box
+BDD26,d1,label=traffic_light cho đèn xanh lớn trên cột trái (~479-497 x 62-82) với state=green relevance=relevant,major,đèn của giao lộ gần nhất
+BDD26,d2,IGNORE: không có box cho hộp đèn đi bộ bàn tay cam (~437x120),critical,bàn tay cam label thành đèn đỏ/vàng -> false STOP
+BDD26,d3,không có box nào ở giao lộ kế tiếp (vùng ~600-720 x 200-240) mang relevance=relevant,critical,đèn đỏ giao lộ kế gán relevant -> xe phanh gấp khi đang được đi
+BDD26,d4,geometry: box đèn xanh cột trái ôm bóng sáng (~479-497 x 62-82) không gồm quầng loá; mỗi cạnh lệch <= 10%,minor,guideline mục 3 ban đêm
+BDD17,d1,ESCALATE: có tag image_escalate với reason=conflicting_lights hoặc low_visibility,major,mưa nhoè + đỏ/xanh không phân định được làn
+BDD17,d2,không có box nào relevance=relevant mà needs_review=false,critical,chọn đỏ hoặc xanh đều có thể là failure a hoặc b
+BDD11,d1,IGNORE: ảnh không có box traffic_light nào (chỉ có đèn đi bộ bàn tay đỏ ~1205x260),critical,đèn đi bộ đỏ label thành đèn xe -> false STOP

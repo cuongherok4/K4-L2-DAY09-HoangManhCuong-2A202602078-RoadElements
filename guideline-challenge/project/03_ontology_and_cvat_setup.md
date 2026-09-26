@@ -1,66 +1,53 @@
 # Ontology + CVAT setup
 
-Bảng ontology là **source of truth** cho schema CVAT: `03_cvat_labels.json` phải khớp với từng dòng bên dưới.
+Bảng ontology là **source of truth** cho schema CVAT: `03_cvat_labels.json` phải khớp từng dòng ở đây. Thay mọi
+placeholder mới là xong (gate G2).
 
 ## Ontology table
 
 | Name | Geometry | Type (class / attribute) | Allowed values | Default | Mutable? | Rationale |
 |---|---|---|---|---|---|---|
-| `traffic_light` | Rectangle | Class | — | — | — | Đại diện cho đối tượng traffic light vật lý, cần được annotate bằng bounding box. |
-| `state` | Attribute của `traffic_light` | Attribute | `__undefined__`, `red`, `yellow`, `green`, `off`, `unknown` | `__undefined__` | Có | Mô tả trạng thái hiện tại của traffic light. `__undefined__` tránh việc vô tình gán state khi annotator chưa đưa ra quyết định. |
-| `relevance` | Attribute của `traffic_light` | Attribute | `__undefined__`, `relevant`, `not_relevant`, `unknown` | `__undefined__` | Có | Mô tả traffic light có liên quan đến hướng di chuyển của ego vehicle hay không. |
-| `pictogram` | Attribute của `traffic_light` | Attribute | `__undefined__`, `circle`, `arrow_left`, `arrow_right`, `arrow_straight`, `unknown` | `__undefined__` | Không | Mô tả pictogram/loại tín hiệu nhìn thấy trên traffic light. |
-| `occluded` | Attribute của `traffic_light` | Attribute | `false`, `true` | `false` | Có | Mô tả traffic light có bị che khuất hay không. Có thể thay đổi giữa các frame, nên được đặt là mutable. |
-| `needs_review` | Attribute của `traffic_light` | Attribute | `false`, `true` | `false` | Không | QA flag cho biết annotation/object có cần review hay không. Đây là metadata của annotation nên không cần thay đổi theo thời gian. |
-| `image_escalate` | Image-level tag | Tag | — | — | — | Dùng khi ambiguity ở cấp độ toàn ảnh không thể được giải quyết an toàn bằng các attribute hiện có. |
+| `traffic_light` | rectangle | class | — | — | — | Một đầu đèn tín hiệu cho xe cơ giới (giao lộ, vạch sang đường giữa đoạn, ramp meter, đèn công trường) thấy được mặt đèn. Downstream cần detect từng đầu đèn; rectangle đủ cho detector, rẻ hơn polygon và dễ đo tolerance |
+| `state` | — | attribute của `traffic_light` (select) | `__undefined__`, `red`, `yellow`, `green`, `off`, `unknown` | `__undefined__` | false | Tín hiệu STOP/GO cho planning. `off` tách khỏi `unknown` vì "thấy rõ đèn tắt" khác "không đọc được". Không tách mũi tên vì downstream chỉ cần màu + relevance |
+| `relevance` | — | attribute của `traffic_light` (select) | `__undefined__`, `relevant`, `not_relevant`, `unknown` | `__undefined__` | false | Downstream phải biết đèn nào điều khiển ego. Là thuộc tính của cùng một object và phụ thuộc ngữ cảnh ảnh, không phải loại vật thể khác → attribute |
+| `pictogram` | — | attribute của `traffic_light` (select) | `__undefined__`, `circle`, `arrow_left`, `arrow_right`, `arrow_straight`, `other`, `unknown` | `__undefined__` | false | Hình của ô đang sáng (`other` = quay đầu, mũi tên chéo, thanh; `unknown` khi đèn tắt/không rõ). Là bằng chứng cho `relevance`: QA bắt được tổ hợp mâu thuẫn như `arrow_left` + `relevant` khi ego đi thẳng — đúng loại lỗi critical |
+| `needs_review` | — | attribute của `traffic_light` (checkbox) | `false` / `true` | `false` | false | ESCALATE cấp object; QA lọc nhanh các object annotator không chắc |
+| `image_escalate` | tag (cả ảnh) | class kiểu tag | — | — | — | ESCALATE cấp ảnh khi không gán được relevance/state cho giao lộ gần nhất |
+| `reason` | — | attribute của `image_escalate` (select) | `__undefined__`, `low_visibility`, `conflicting_lights`, `lane_unclear`, `other` | `__undefined__` | false | QA thống kê vì sao ảnh bị escalate → biết cần sửa guideline hay loại ảnh |
+
+IGNORE không có label riêng: thể hiện bằng **không vẽ box** (guideline mục 5 liệt kê những gì không vẽ).
+`mutable = false` cho mọi attribute vì task là ảnh tĩnh, dùng Shape, không có track.
 
 ## Class hay attribute
 
-- `traffic_light` là **class** vì đây là một đối tượng vật lý có geometry.
-- `state` là **attribute** vì nó mô tả trạng thái của một traffic-light object và có thể thay đổi theo thời gian.
-- `relevance` là **attribute** vì nó mô tả mối quan hệ giữa traffic light và ego vehicle.
-- `pictogram` là **attribute** vì nó mô tả loại/pictogram hiển thị trên traffic light và thường không thay đổi trong quá trình track.
-- `occluded` là **attribute** vì nó mô tả điều kiện visibility của traffic light và có thể thay đổi giữa các frame.
-- `needs_review` là **attribute** vì đây là QA metadata gắn với annotation/object.
-- `image_escalate` là **tag** vì escalation áp dụng cho toàn bộ image, không gắn với một geometry cụ thể.
-
-### Default nào có thể gây bias?
-
-Các default hiện tại nhìn chung tránh được bias đối với các semantic attributes chính:
-
-- `state = __undefined__`: phù hợp; annotator phải đưa ra quyết định thay vì mặc định một state.
-- `relevance = __undefined__`: phù hợp; tránh mặc định traffic light là relevant.
-- `pictogram = __undefined__`: phù hợp; tránh mặc định loại signal.
-- `occluded = false`: phù hợp nếu giả định mặc định là object không bị occluded và annotator sẽ bật `true` khi quan sát thấy occlusion.
-- `needs_review = false`: phù hợp vì review flag chỉ được bật khi annotator xác định annotation cần review.
+- **Một class `traffic_light`**, không tách `red_light`/`green_light` hay `relevant_light`: state và relevance là
+  thuộc tính của **cùng một vật thể**, đổi theo thời gian/ngữ cảnh; tách class sẽ ra 5 × 3 = 15 class và detector
+  phải học 15 lớp trông gần như giống nhau.
+- **Không label đèn đi bộ/xe đạp/buýt/tàu điện, đèn điều khiển làn (X đỏ), đèn chắn tàu, đèn quay ngang** thành
+  class riêng: downstream (module STOP/GO cho xe cơ giới) không dùng, thêm class chỉ tăng công label và nguy cơ nhầm.
+  Chúng là IGNORE có bảng nhận biết ở guideline mục 5.
+- **Có `pictogram` nhưng chỉ cho đèn xe**: không có giá trị `pedestrian`/`bicycle` vì đèn đi bộ/xe đạp là IGNORE
+  (không vẽ). Nếu label chúng thành `traffic_light`, model học chúng là đèn xe → false STOP.
+- **Không có `red_yellow`**: dữ liệu là đèn Mỹ (BDD/LISA), không có pha đỏ+vàng; trường hợp hai ô cùng sáng xử lý
+  bằng rule "chọn màu hạn chế hơn + `needs_review`" (guideline mục 4).
+- **Không có checkbox `occluded`**: downstream không dùng; box đã là visible-only, còn che mất ô sáng thì đã thể hiện
+  bằng `state = unknown`. Thêm checkbox chỉ tăng thao tác mà không đổi quyết định nào.
+- **Default `__undefined__` cho `state`, `relevance`, `pictogram`**: nếu default là giá trị đầu danh sách (`red`/`relevant`/`circle`), annotator quên gán sẽ
+  tạo ra đèn xanh relevant "im lặng" — đúng loại lỗi critical nhất. `__undefined__` còn trong export = lỗi thấy được.
+- **Default `false` cho `needs_review`**: bias về phía "không escalate" là chấp nhận được vì mọi giá trị `unknown` đều
+  bắt buộc đi kèm tick (guideline mục 7) và QA kiểm tổ hợp `unknown` + `needs_review = false`.
 
 ## CVAT
 
-- **Phiên bản CVAT** (`make cvat-status`): 2.76.1
-- **Tên task calibration**: TEAM01-CALIB-V1
-- **Guide của task đã dán `02_guideline.md`?**: Có
-- **Nhóm dùng Track hay Shape, vì sao:** **Shape**, vì các ảnh chọn cho calib v1 là các ảnh riêng biệt, không theo sequence.
+- **Phiên bản CVAT** (`make cvat-status`): 2.74.1 (http://localhost:8080)
+- **Tên task calibration** (có version guideline, ví dụ `team07-calib-v1`): `team01-calib-v1-<tên người label>` (mỗi người một task)
+- **Guide của task đã dán `02_guideline.md`?** TODO (có / chưa)
+- **Nhóm dùng Track hay Shape, vì sao:** **Shape**. Mọi ảnh gán như ảnh tĩnh; LISA chỉ dùng 4 frame cách xa nhau, không
+  cần nội suy. Export dùng **CVAT for images 1.1**, khớp với `make calib` và `make score`.
 
 ## Setup test
 
-Một thành viên **chưa tham gia setup** cần mở calibration task và trả lời:
+Một thành viên **chưa tham gia setup** mở task và trả lời: label gì, dùng tool nào, gán attribute nào, khi nào
+escalate. Ghi lại ai test và chỗ họ vấp:
 
-- Label object nào?
-- Dùng tool nào trong CVAT?
-- Gán những attribute nào?
-- Khi nào dùng `unknown`?
-- Khi nào dùng `image_escalate`?
-- Khi nào bật `occluded = true`?
-- Khi nào bật `needs_review = true`?
-
-**Tester:** TODO  
-**Kết quả:** TODO  
-**Label expected:** `traffic_light`  
-**Tool expected:** Rectangle / Shape  
-**Attributes expected:** `state`, `relevance`, `pictogram`, `occluded`, `needs_review` khi applicable  
-**Escalation:** `image_escalate` khi ambiguity không thể được resolve một cách an toàn từ evidence hiện có  
-**Tester vấp ở đâu:** TODO
-
-## Confirmation required trước Gate G2
-
-**Escalation policy:** Cần xác nhận khi nào dùng `image_escalate` thay vì gán `unknown` cho một attribute cụ thể.
+TODO — làm sau khi tạo task calibration.
