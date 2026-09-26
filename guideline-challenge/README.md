@@ -267,6 +267,7 @@ và nhóm đã sửa gì từ bằng chứng đó?
 
 - Mỗi file một người sửa chính (`00_team.md` có cột "File phụ trách"). `git pull` trước khi sửa, commit nhỏ, push
   thường xuyên.
+- Trước khi push, mở PR để lead review; xem [quy trình commit và chờ lead duyệt](GIT_WORKFLOW.md).
 - Xung đột git mà không tự gỡ được trong 3 phút: gọi Lab Coach.
 - Nhóm xong sớm: tối đa 1–2 stretch, không hy sinh phần core — ví dụ validator nhỏ bắt tổ hợp attribute sai, QA
   sampling theo rủi ro, decision tree cho một ambiguity khó, so guideline với một public dataset. Tool mới hay

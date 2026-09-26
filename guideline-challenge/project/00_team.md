@@ -5,8 +5,8 @@
 - **Team:** TODO (ví dụ `team07`)
 - **Nhóm peer test bài của mình:** TODO (cặp A ↔ B; số nhóm lẻ thì ring 3 nhóm A → B → C → A — Lab Coach công bố)
 - **Nhóm mình test bài của:** TODO
-- **Problem family:** TODO (xem README mục "1 · Chọn bài toán")
-- **Nguồn ảnh:** TODO (`bdd100k`, `gtsdb`, `lisa` — chỉ dùng ảnh trong `data/`)
+- **Problem family:** Traffic light — state + ego relevance tại giao lộ nhiều đầu đèn (kể cả đêm/chạng vạng)
+- **Nguồn ảnh:** `bdd100k` (example/calibration/blind), `lisa` (example/calibration)
 
 | Thành viên | GitHub | Vai trò chính | File phụ trách |
 |---|---|---|---|
